@@ -26,8 +26,13 @@ func main() {
 		Value:  "localhost:30307",
 	})
 
+	app.Command("account", "Account related operations", (account{}).action)
+	app.Command("transfer", "Transfer coins from one account to another", (transfer{}).action)
+	app.Command("query", "Query data from destination chain", (query{}).action)
+	app.Command("help", "Prints help", (help{}).action)
+
 	app.Action = func() {
-		log.Printf("hello world!")
+		log.Printf("help is not implemented yet")
 
 		conn, err := initialiseGRPCClientConnection(context.Background(), *destinationURL)
 		if err != nil {
