@@ -5,10 +5,14 @@ package admission_control
 
 import (
 	bytes "bytes"
+	context "context"
 	fmt "fmt"
 	mempool "github.com/KentaKudo/go-libra-cli/pb/mempool"
 	types "github.com/KentaKudo/go-libra-cli/pb/types"
 	proto "github.com/gogo/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 	io "io"
 	math "math"
 	math_bits "math/bits"
@@ -642,6 +646,137 @@ func valueToGoStringAdmissionControl(v interface{}, typ string) string {
 	pv := reflect.Indirect(rv).Interface()
 	return fmt.Sprintf("func(v %v) *%v { return &v } ( %#v )", typ, typ, pv)
 }
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// AdmissionControlClient is the client API for AdmissionControl service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type AdmissionControlClient interface {
+	// Public API to submit transaction to a validator.
+	SubmitTransaction(ctx context.Context, in *SubmitTransactionRequest, opts ...grpc.CallOption) (*SubmitTransactionResponse, error)
+	// This API is used to update the client to the latest ledger version and
+	// optionally also request 1..n other pieces of data.  This allows for batch
+	// queries.  All queries return proofs that a client should check to validate
+	// the data. Note that if a client only wishes to update to the latest
+	// LedgerInfo and receive the proof of this latest version, they can simply
+	// omit the requested_items (or pass an empty list)
+	UpdateToLatestLedger(ctx context.Context, in *types.UpdateToLatestLedgerRequest, opts ...grpc.CallOption) (*types.UpdateToLatestLedgerResponse, error)
+}
+
+type admissionControlClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewAdmissionControlClient(cc *grpc.ClientConn) AdmissionControlClient {
+	return &admissionControlClient{cc}
+}
+
+func (c *admissionControlClient) SubmitTransaction(ctx context.Context, in *SubmitTransactionRequest, opts ...grpc.CallOption) (*SubmitTransactionResponse, error) {
+	out := new(SubmitTransactionResponse)
+	err := c.cc.Invoke(ctx, "/admission_control.AdmissionControl/SubmitTransaction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *admissionControlClient) UpdateToLatestLedger(ctx context.Context, in *types.UpdateToLatestLedgerRequest, opts ...grpc.CallOption) (*types.UpdateToLatestLedgerResponse, error) {
+	out := new(types.UpdateToLatestLedgerResponse)
+	err := c.cc.Invoke(ctx, "/admission_control.AdmissionControl/UpdateToLatestLedger", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// AdmissionControlServer is the server API for AdmissionControl service.
+type AdmissionControlServer interface {
+	// Public API to submit transaction to a validator.
+	SubmitTransaction(context.Context, *SubmitTransactionRequest) (*SubmitTransactionResponse, error)
+	// This API is used to update the client to the latest ledger version and
+	// optionally also request 1..n other pieces of data.  This allows for batch
+	// queries.  All queries return proofs that a client should check to validate
+	// the data. Note that if a client only wishes to update to the latest
+	// LedgerInfo and receive the proof of this latest version, they can simply
+	// omit the requested_items (or pass an empty list)
+	UpdateToLatestLedger(context.Context, *types.UpdateToLatestLedgerRequest) (*types.UpdateToLatestLedgerResponse, error)
+}
+
+// UnimplementedAdmissionControlServer can be embedded to have forward compatible implementations.
+type UnimplementedAdmissionControlServer struct {
+}
+
+func (*UnimplementedAdmissionControlServer) SubmitTransaction(ctx context.Context, req *SubmitTransactionRequest) (*SubmitTransactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitTransaction not implemented")
+}
+func (*UnimplementedAdmissionControlServer) UpdateToLatestLedger(ctx context.Context, req *types.UpdateToLatestLedgerRequest) (*types.UpdateToLatestLedgerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateToLatestLedger not implemented")
+}
+
+func RegisterAdmissionControlServer(s *grpc.Server, srv AdmissionControlServer) {
+	s.RegisterService(&_AdmissionControl_serviceDesc, srv)
+}
+
+func _AdmissionControl_SubmitTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitTransactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdmissionControlServer).SubmitTransaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/admission_control.AdmissionControl/SubmitTransaction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdmissionControlServer).SubmitTransaction(ctx, req.(*SubmitTransactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AdmissionControl_UpdateToLatestLedger_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(types.UpdateToLatestLedgerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdmissionControlServer).UpdateToLatestLedger(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/admission_control.AdmissionControl/UpdateToLatestLedger",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdmissionControlServer).UpdateToLatestLedger(ctx, req.(*types.UpdateToLatestLedgerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _AdmissionControl_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "admission_control.AdmissionControl",
+	HandlerType: (*AdmissionControlServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SubmitTransaction",
+			Handler:    _AdmissionControl_SubmitTransaction_Handler,
+		},
+		{
+			MethodName: "UpdateToLatestLedger",
+			Handler:    _AdmissionControl_UpdateToLatestLedger_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "admission_control.proto",
+}
+
 func (m *SubmitTransactionRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)

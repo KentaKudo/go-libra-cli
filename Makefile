@@ -40,5 +40,5 @@ protos:
 		-I $(AC_SCHEMA_DIR) \
 		-I $(TYPES_SCHEMA_DIR) \
 		-I $(MEMPOOL_SCHEMA_DIR) \
-		--gogoslick_out=$(AC_PROTO_MAPPINGS),paths=source_relative:$(GENERATED_AC_DIR) \
+		--gogoslick_out=$(AC_PROTO_MAPPINGS),paths=source_relative,plugins=grpc:$(GENERATED_AC_DIR) \
 		admission_control.proto
